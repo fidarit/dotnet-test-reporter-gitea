@@ -67,7 +67,8 @@ const run = async (): Promise<void> => {
                 })
             }
         } else {
-            console.log('This isn\'t a pull request');
+            console.log('This isn\'t a pull request, comment:');
+            console.log(comment);
         }
 
     } else {
