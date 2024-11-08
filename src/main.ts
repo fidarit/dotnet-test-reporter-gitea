@@ -58,7 +58,7 @@ const run = async (): Promise<void> => {
                 'Authorization': `token ${token}`,
                 'accept': 'application/json'
             },
-            body: JSON.stringify({ body: comment }),
+            body: JSON.stringify({ body: comment + '<br><br>' + summary }),
         });
 
         if (!response.ok) {
