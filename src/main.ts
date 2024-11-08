@@ -44,6 +44,7 @@ const run = async (): Promise<void> => {
 
     if (process.env['GITEA_ACTIONS']) {
         console.log('This is a Gitea Action');
+        console.log('token: ' + token)
     } else {
         await setSummary(summary);
         await publishComment(token, title, comment, postNewComment);
