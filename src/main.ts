@@ -59,10 +59,16 @@ const run = async (): Promise<void> => {
                 }
             })
             .then(res => res.json())
-            .then(data => console.log(data));
+                .then(data => {
+                    data.forEach(c => {
+                        if (c.body.startsWith(`[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})`)) {
+                            console.log('Existing comment found', c)
+                        }
+                    })
+                });
 
             // Gitea doesn't support Summarys yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
-            const combinedComment = `${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
+            const combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
 
             const response = await fetch(url, {
                 method: 'POST',
