@@ -49,6 +49,9 @@ const run = async (): Promise<void> => {
         // test, for now
         let url = process.env['GITHUB_API_URL'] + "/repos/" + process.env['GITHUB_REPOSITORY'] + '/issues/43/comments';
 
+        console.log('url: ' + url)
+        console.log('comment: ' + comment)
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
