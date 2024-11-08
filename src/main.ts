@@ -45,24 +45,29 @@ const run = async (): Promise<void> => {
     if (process.env['GITEA_ACTIONS']) {
         console.log('This is a Gitea Action');
 
-        // test, for now
-        let url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/43/comments`;
+        if (process.env['GITHUB_EVENT_NAME']?.startsWith('pull_')) {
+            let url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments`;
 
-        console.log('url: ' + url)
-        console.log('comment: ' + comment)
+            // Gitea doesn't support Summarys yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
+            const combinedComment = `${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `token ${token}`,
-                'accept': 'application/json'
-            },
-            body: JSON.stringify({ body: `${comment}\r\n<details><summary>Details:</summary>\r\n${summary}\r\n</details>` }),
-        });
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `token ${token}`,
+                    'accept': 'application/json'
+                },
+                body: JSON.stringify({ body: combinedComment }),
+            });
 
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
+            if (!response.ok) {
+                response.text().then((text) => {
+                    throw new Error(`Error calling Grita API: Response status: ${response.status}, Response Text: ${text}`);
+                })
+            }
+        } else {
+            console.log('This isn\'t a pull request');
         }
 
     } else {
