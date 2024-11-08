@@ -49,6 +49,8 @@ const run = async (): Promise<void> => {
 
             let url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments`;
 
+            let existingCommentId = null;
+
             // Get existing comments to see if we need to update it
             await fetch(url, {
                 method: 'GET',
@@ -62,16 +64,25 @@ const run = async (): Promise<void> => {
                 .then(data => {
                     data.forEach(c => {
                         if (c.body.startsWith(`[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})`)) {
-                            console.log('Existing comment found', c)
+                            existingCommentId = c.id;
                         }
                     })
                 });
 
             // Gitea doesn't support Summarys yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
-            const combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
+            let combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
+
+            let method = 'POST';
+
+
+            if (existingCommentId != null) {
+                method = 'PATCH';
+                url += '/' + existingCommentId;
+                combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\nUpdated  ${new Date().toLocaleString()}\n` + combinedComment;
+            }
 
             const response = await fetch(url, {
-                method: 'POST',
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `token ${token}`,
