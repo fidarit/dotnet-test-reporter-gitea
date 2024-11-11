@@ -7,14 +7,15 @@ export const publishCommentToGitea = async (
   postNew: boolean
 ): Promise<void> => {
     log('This is a Gitea Action');
+    log(comment);
 
     if (!process.env['GITHUB_EVENT_NAME']?.startsWith('pull_')) {
         log(`Expected a pull request event, not a ${process.env['GITHUB_EVENT_NAME']}.`);
-        log(comment);
         return;
     }
 
     const existingComment = !postNew ? await getExistingComment(token) : null;
+    console.log('existingComment', existingComment);
 
     // Gitea doesn't support summaries yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
     let combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
