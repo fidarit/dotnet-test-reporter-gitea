@@ -15,7 +15,6 @@ export const publishCommentToGitea = async (
     }
 
     const existingComment = !postNew ? await getExistingComment(token) : null;
-    console.log('existingComment', existingComment);
 
     // Gitea doesn't support summaries yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
     let combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
@@ -49,6 +48,8 @@ const createComment = async (token: string, body: string) => {
 
 const updateComment = async (token: string, existingComment: any, body: string) => {
     const url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments/${existingComment.id}`;
+
+    body = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\nUpdated  ${new Date().toLocaleString()}\n\n` + body.replace(`[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n`, '');
 
     const response = await fetch(url, {
         method: 'PATCH',
