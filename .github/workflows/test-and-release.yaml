@@ -98,6 +98,8 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/gitea_dev' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
           
       - name: Parse commit message
         id: info
