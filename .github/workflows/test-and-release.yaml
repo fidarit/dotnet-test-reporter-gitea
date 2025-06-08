@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test and Push
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
       - main
       - feature/**
       - fix/**
+      - gitea_dev
   pull_request:
     branches:
       - main
+      - gitea_dev
 
 jobs:
   build:
@@ -89,3 +91,26 @@ jobs:
           results-path: ./files/**/test_result.trx
           allow-failed-tests: true
           show-test-output: false
+          
+  push_to_gitea:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/gitea_dev' && contains(github.event.head_commit.message, 'build') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+          
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@v0.10.0
+        with:
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
+          commit_prefix: "[AUTO] "
+          commit_message: "Build"
+          force: true
+          target_branch: gitea
