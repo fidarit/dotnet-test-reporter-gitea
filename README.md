@@ -1,10 +1,10 @@
-# Dotnet Test Reporter
-#### A GitHub action to parse test & coverage results and post them as a PR comment.
+# Dotnet Test Reporter (Gitea version)
+#### A Gitea action to parse test & coverage results and post them as a PR comment.
 - The action can process dotnet test results (a single or multiple `.trx` files), if there are any failing tests the action will fail. This allows integrating the action into your CI pipeline to short circuit and prevent further build/deploy operations as well as merging the code that caused tests to fail.
 - Optionally, test coverage can also be provided (a single opencover or cobertura `.xml` file) as well as a minimum coverage percentage threshold.
 If the threshold is provided and the coverage is not sufficient the action will fail.
-- The action also generates a [workflow summary](https://github.com/bibipkins/dotnet-test-reporter#summary-example) - a more detailed overview of processed tests and test coverage. For your convenience you can see the summary by following the link in the [comment](https://github.com/bibipkins/dotnet-test-reporter?tab=readme-ov-file#comment-example).
-- The action allows many configurations to suit your needs, please visit the [Inputs](https://github.com/bibipkins/dotnet-test-reporter#Inputs) and [Examples](https://github.com/bibipkins/dotnet-test-reporter#Examples) sections.
+- The action also generates a [workflow summary](#summary-example) - a more detailed overview of processed tests and test coverage. For your convenience you can see the summary by following the link in the [comment](#comment-example).
+- The action allows many configurations to suit your needs, please visit the [Inputs](#Inputs) and [Examples](#Examples) sections.
 #### Comment example
 ![image](https://user-images.githubusercontent.com/16402446/209407863-2c0d0b3a-99e6-4489-8e1d-a2308102634f.png)
 #### Summary example
@@ -72,41 +72,41 @@ Set to `false` if there is too much output leading to truncation on the summary
 
 ## Outputs
 
-#### `tests-total`
+- `tests-total`
 Total number of tests
 
-#### `tests-passed`
+- `tests-passed`
 Number of tests passed
 
-#### `tests-failed`
+- `tests-failed`
 Number of tests failed
 
-#### `tests-skipped`
+- `tests-skipped`
 Number of tests skipped
 
-#### `coverage-line`
+- `coverage-line`
 Line code coverage
 
-#### `coverage-lines-total`
+- `coverage-lines-total`
 Total lines of code
 
-#### `coverage-lines-covered`
+- `coverage-lines-covered`
 Lines of code covered
 
-#### `coverage-branch`
+- `coverage-branch`
 Branch code coverage
 
-#### `coverage-branches-total`
+- `coverage-branches-total`
 Total branches
 
-#### `coverage-branches-covered`
+- `coverage-branches-covered`
 Branches covered
 
 ## Examples
 <b>Note:</b> please, always use the latest version
 
 ```yaml
-uses: bibipkins/dotnet-test-reporter@v1.4.0
+uses: fidarit/dotnet-test-reporter-gitea@v1
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
   comment-title: 'Unit Test Results'

@@ -1,5 +1,5 @@
-name: 'Dotnet Test Reporter'
-description: 'A GitHub action to parse test results and post the summary as a PR comment'
+name: 'Dotnet Test Reporter for Gitea'
+description: 'A GitHub (Gitea) action to parse test results and post the summary as a PR comment'
 author: 'https://github.com/bibipkins'
 branding:
   icon: 'check-square'
