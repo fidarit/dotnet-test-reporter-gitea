@@ -16,90 +16,34 @@ If the threshold is provided and the coverage is not sufficient the action will 
 
 ## Inputs
 
-#### `github-token`
-**Required** - GitHub repository token.
-
-#### `results-path`
-**Required** - Path to the `.trx` file(s) containing test results. Supports glob patterns.
-<br/>Examples: `./TestResults/result.trx`, `./**/*.trx`
-
-#### `coverage-path`
-**Optional** - Path to the file containing test coverage. Supports glob patterns.
-<br/>Examples: `./TestResults/coverage.xml`, `./**/coverage.xml`
-
-#### `coverage-type`
-**Optional** - Coverage file type. Supported types are `opencover` and `cobertura`.
-<br/>Default: `opencover`
-
-#### `coverage-threshold`
-**Optional** - Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`.
-<br/>Example: `80.42`
-
-#### `comment-title`
-**Optional** - Pull Request comment title.
-<br/>Example: `My Custom Title`
-<br/>Default: `Test Results`
-
-#### `post-new-comment`
-**Optional** - Boolean flag. 
-Set to `true` to post a new comment after each run. 
-Set to `false` or leave blank to only update an existing comment.
-<br/>Default: `false`
-
-#### `allow-failed-tests`
-**Optional** - Boolean flag. 
-Set to `true` to prevent failed tests from failing the job.
-Set to `false` or leave blank to fail the job if there are any failed tests (recommended).
-<br/>Default: `false`
-
-#### `show-failed-tests-only`
-**Optional** - Boolean flag. 
-Set to `true` to show only the failed tests. This is useful if you have many tests and the results exceed the markdown comment limit in github
-Set to `false` or leave blank to show all the test results (recommended).
-<br/>Default: `false`
-
-#### `show-test-output`
-**Optional** - Boolean flag. 
-Set to `true` or leave blank to show the output of the tests. (recommended).
-Set to `false` if there is too much output leading to truncation on the summary
-<br/>Default: `true`
-
-#### `changed-files-and-line-numbers`
-**Optional** - Array of changed files and lines numbers. 
-<br/>Examples: `[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]`
-<br/>Default: `[]`
+| Input Variable                 | Required | Default        | Description                                                                                                                                                                                                                 |
+|--------------------------------|----------|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| github-token                   | Yes      | `""`           | GitHub repository token.                                                                                                                                                                                                    |
+| results-path                   | Yes      | `""`           | Path to the `.trx` file(s) containing test results. Supports glob patterns.<br>Examples: `./TestResults/result.trx`, `./**/*.trx`                                                                                           |
+| coverage-path                  | No       | `""`           | Path to the file containing test coverage. Supports glob patterns.<br>Examples: `./TestResults/coverage.xml`, `./**/coverage.xml`                                                                                           |
+| coverage-type                  | No       | `opencover`    | Coverage file type. Supported types are `opencover` and `cobertura`.                                                                                                                                                        |
+| coverage-threshold             | No       | `0.0`          | Minimum allowed coverage. You can provide a coverage percentage ranging from `0.00` to `100.00`.                                                                                                                            |
+| comment-title                  | No       | `Test Results` | Pull Request comment title.                                                                                                                                                                                                 |
+| post-new-comment               | No       | `false`        | Set to `true` to post a new comment after each run.<br>Set to `false` or leave blank to only update an existing comment.                                                                                                    |
+| allow-failed-tests             | No       | `false`        | Set to `true` to prevent failed tests from failing the job.<br>Set to `false` or leave blank to fail the job if there are any failed tests (recommended).                                                                   |
+| show-failed-tests-only         | No       | `false`        | Set to `true` to show only the failed tests. This is useful if you have many tests and the results exceed the markdown comment limit in github<br>Set to `false` or leave blank to show all the test results (recommended). |
+| show-test-output               | No       | `true`         | Set to `true` or leave blank to show the output of the tests. (recommended).<br>Set to `false` if there is too much output leading to truncation on the summary                                                             |
+| changed-files-and-line-numbers | No       | `[]`           | Array of changed files and lines numbers.<br>Examples: `[{"name":"Specifications\\BaseSpecification.cs","lineNumbers":[17,18,19]}]`                                                                                         |
 
 ## Outputs
 
-- `tests-total`
-Total number of tests
-
-- `tests-passed`
-Number of tests passed
-
-- `tests-failed`
-Number of tests failed
-
-- `tests-skipped`
-Number of tests skipped
-
-- `coverage-line`
-Line code coverage
-
-- `coverage-lines-total`
-Total lines of code
-
-- `coverage-lines-covered`
-Lines of code covered
-
-- `coverage-branch`
-Branch code coverage
-
-- `coverage-branches-total`
-Total branches
-
-- `coverage-branches-covered`
-Branches covered
+| **Outputs**               | **Description**         |
+|---------------------------|-------------------------|
+| tests-total               | Total number of tests   |
+| tests-passed              | Number of tests passed  |
+| tests-failed              | Number of tests failed  |
+| tests-skipped             | Number of tests skipped |
+| coverage-line             | Line code coverage      |
+| coverage-lines-total      | Total lines of code     |
+| coverage-lines-covered    | Lines of code covered   |
+| coverage-branch           | Branch code coverage    |
+| coverage-branches-total   | Total branches          |
+| coverage-branches-covered | Branches covered        |
 
 ## Examples
 <b>Note:</b> please, always use the latest version
