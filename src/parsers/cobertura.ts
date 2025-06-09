@@ -2,7 +2,7 @@ import { CoverageParser, ICoverageData, ICoverageFile, ICoverageModule, ChangedF
 import { calculateCoverage, calculateChangedLineTotals, calculateChangedLinesCovered, createCoverageModule, parseCoverage } from './common';
 
 const parseCobertura: CoverageParser = async (filePath: string, threshold: number, changedFilesAndLineNumbers: ChangedFileWithLineNumbers[]) =>
-  parseCoverage(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules);
+  await parseCoverage(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules);
 
 const parseSummary = (file: any, modules: ICoverageModule[]): ICoverageData => {
   const summary = file.coverage['$'];

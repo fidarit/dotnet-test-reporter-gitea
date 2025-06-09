@@ -1,6 +1,6 @@
 import { processTestResults } from './results';
 import { processTestCoverage } from './coverage';
-import { getInputs, publishComment, setFailed, setSummary, publishCommentToGitea } from './utils';
+import { getInputs, publishComment, setFailed, setSummary, publishCommentToGitea, log } from './utils';
 import { formatChangedFileCoverageMarkdown, formatCoverageMarkdown, formatResultMarkdown } from './formatting/markdown';
 import { formatCoverageHtml, formatResultHtml, formatTitleHtml } from './formatting/html';
 
@@ -48,6 +48,10 @@ const run = async (): Promise<void> => {
       await setSummary(summary);
       await publishComment(token, title, comment, postNewComment);
     }
+    
+    log('Success');
+    process.exit(0);
+    
   } catch (error) {
     setFailed((error as Error).message);
   }

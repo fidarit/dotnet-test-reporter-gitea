@@ -21,8 +21,10 @@ export const publishCommentToGitea = async (
 
     if (existingComment && !postNew) {
       await updateComment(token, existingComment, combinedComment);
+      log('Updated comment');
     } else {
       await createComment(token, combinedComment);
+      log('Created comment');
     }
 };
 
@@ -41,7 +43,7 @@ const createComment = async (token: string, body: string) => {
 
     if (!response.ok) {
         response.text().then((text) => {
-            throw new Error(`Error calling Grita API: Response status: ${response.status}, Response Text: ${text}`);
+            throw new Error(`Error calling Gitea API: Response status: ${response.status}, Response Text: ${text}`);
         })
     }
 }
@@ -63,7 +65,7 @@ const updateComment = async (token: string, existingComment: any, body: string) 
 
     if (!response.ok) {
         response.text().then((text) => {
-            throw new Error(`Error calling Grita API: Response status: ${response.status}, Response Text: ${text}`);
+            throw new Error(`Error calling Gitea API: Response status: ${response.status}, Response Text: ${text}`);
         })
     }
 }
