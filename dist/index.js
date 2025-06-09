@@ -302,8 +302,15 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
             }
         }
-        yield (0, utils_1.setSummary)(summary);
-        yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
+        if (process.env['GITEA_ACTIONS']) {
+            yield (0, utils_1.publishCommentToGitea)(token, comment, summary, postNewComment);
+        }
+        else {
+            yield (0, utils_1.setSummary)(summary);
+            yield (0, utils_1.publishComment)(token, title, comment, postNewComment);
+        }
+        (0, utils_1.log)('Success');
+        process.exit(0);
     }
     catch (error) {
         (0, utils_1.setFailed)(error.message);
@@ -330,7 +337,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const common_1 = __nccwpck_require__(9023);
-const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
+const parseCobertura = (filePath, threshold, changedFilesAndLineNumbers) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, common_1.parseCoverage)(filePath, threshold, changedFilesAndLineNumbers, parseSummary, parseModules); });
 const parseSummary = (file, modules) => {
     const summary = file.coverage['$'];
     const totalCoverage = (0, common_1.calculateCoverage)(Number(summary['lines-covered']) + Number(summary['branches-covered']), Number(summary['lines-valid']) + Number(summary['branches-valid']));
@@ -998,6 +1005,101 @@ exports.readXmlFile = readXmlFile;
 
 /***/ }),
 
+/***/ 5273:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.publishCommentToGitea = void 0;
+const action_1 = __nccwpck_require__(2216);
+const publishCommentToGitea = (token, comment, summary, postNew) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    (0, action_1.log)('This is a Gitea Action');
+    (0, action_1.log)(comment);
+    if (!((_a = process.env['GITHUB_EVENT_NAME']) === null || _a === void 0 ? void 0 : _a.startsWith('pull_'))) {
+        (0, action_1.log)(`Expected a pull request event, not a ${process.env['GITHUB_EVENT_NAME']}.`);
+        return;
+    }
+    const existingComment = !postNew ? yield getExistingComment(token) : null;
+    // Gitea doesn't support summaries yet, so combine the comment and summary, see https://github.com/go-gitea/gitea/issues/23721
+    let combinedComment = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n${comment}\r\n<details><summary>Details</summary>\r\n${summary}\r\n</details>`;
+    if (existingComment && !postNew) {
+        yield updateComment(token, existingComment, combinedComment);
+        (0, action_1.log)('Updated comment');
+    }
+    else {
+        yield createComment(token, combinedComment);
+        (0, action_1.log)('Created comment');
+    }
+});
+exports.publishCommentToGitea = publishCommentToGitea;
+const createComment = (token, body) => __awaiter(void 0, void 0, void 0, function* () {
+    const url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments`;
+    const response = yield fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `token ${token}`,
+            'accept': 'application/json'
+        },
+        body: JSON.stringify({ body: body }),
+    });
+    if (!response.ok) {
+        response.text().then((text) => {
+            throw new Error(`Error calling Gitea API: Response status: ${response.status}, Response Text: ${text}`);
+        });
+    }
+});
+const updateComment = (token, existingComment, body) => __awaiter(void 0, void 0, void 0, function* () {
+    const url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments/${existingComment.id}`;
+    body = `[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\nUpdated  ${new Date().toLocaleString()}\n\n` + body.replace(`[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})\n`, '');
+    const response = yield fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `token ${token}`,
+            'accept': 'application/json'
+        },
+        body: JSON.stringify({ body: body }),
+    });
+    if (!response.ok) {
+        response.text().then((text) => {
+            throw new Error(`Error calling Gitea API: Response status: ${response.status}, Response Text: ${text}`);
+        });
+    }
+});
+const getExistingComment = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    const url = `${process.env['GITHUB_API_URL']}/repos/${process.env['GITHUB_REPOSITORY']}/issues/${process.env['GITHUB_REF_NAME']}/comments`;
+    let firstComment = null;
+    yield fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `token ${token}`,
+            'accept': 'application/json'
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+        let comments = data; //TODO: correct type
+        firstComment = comments.find(c => c.body.startsWith(`[comment]: # (dotnet-test-reporter-${process.env['GITHUB_REF_NAME']})`));
+    });
+    return firstComment;
+});
+
+
+/***/ }),
+
 /***/ 7782:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -1021,6 +1123,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3451), exports);
 __exportStar(__nccwpck_require__(396), exports);
 __exportStar(__nccwpck_require__(2216), exports);
+__exportStar(__nccwpck_require__(5273), exports);
 
 
 /***/ }),
